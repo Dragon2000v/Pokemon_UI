@@ -28,6 +28,7 @@ export const Web3Provider: FC<Props> = ({ children }) => {
   const connect = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
         const provider = new BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         setProvider(provider);
@@ -35,6 +36,8 @@ export const Web3Provider: FC<Props> = ({ children }) => {
       } catch (error) {
         console.error("Error connecting to Web3:", error);
       }
+    } else {
+      window.open("https://metamask.io", "_blank");
     }
   };
 

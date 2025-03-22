@@ -1,10 +1,9 @@
-import { FC } from "react";
 import { BrowserRouter } from "react-router-dom";
+import { Routing } from "@/pages";
 
-export const withRouter = (Component: FC) => () => {
-  return (
+export const withRouter = (component: () => React.ReactNode) => () =>
+  (
     <BrowserRouter>
-      <Component />
+      <Routing />
     </BrowserRouter>
   );
-};

@@ -1,13 +1,10 @@
-export interface Pokemon {
-  id: string;
-  name: string;
-  hp: number;
-  attack: number;
-}
+import { Pokemon } from "@/entities/pokemon/model/types";
 
 export interface GameState {
   id: string;
-  status: "active" | "won" | "lost";
+  status: GameStatus;
   playerPokemon: Pokemon;
   opponentPokemon: Pokemon;
 }
+
+export type GameStatus = "active" | "won" | "lost";

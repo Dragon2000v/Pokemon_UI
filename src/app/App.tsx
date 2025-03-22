@@ -1,14 +1,12 @@
-import { BrowserRouter } from "react-router-dom";
-import { Routing } from "../pages";
 import { withProviders } from "./providers";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-background text-text">
-        <Routing />
+    <div className="min-h-screen bg-background text-text">
+      <div className="container mx-auto px-4">
+        {/* Здесь будет контент из роутера */}
       </div>
-    </BrowserRouter>
+    </div>
   );
 }
 

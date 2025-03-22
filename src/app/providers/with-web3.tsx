@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Web3Provider } from "../../entities/web3";
+import { Web3Provider } from "@/entities/web3";
 
 export const withWeb3 = (Component: FC) => () => {
   return (
