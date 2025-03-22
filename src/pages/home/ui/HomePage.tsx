@@ -16,6 +16,7 @@ export const HomePage: FC = () => {
     null
   );
   const [loading, setLoading] = useState(false);
+  const [isCreatingGame, setIsCreatingGame] = useState(false);
 
   useEffect(() => {
     const fetchPokemons = async () => {
@@ -107,10 +108,24 @@ export const HomePage: FC = () => {
     }
 
     try {
+      setIsCreatingGame(true);
+      console.log("Creating game with pokemon:", selectedPokemonId);
       const gameId = await createGame(selectedPokemonId);
+      console.log("Game created with ID:", gameId);
+
+      if (!gameId) {
+        throw new Error("Не удалось получить ID игры");
+      }
+
+      // Добавляем небольшую задержку перед переходом
+      await new Promise((resolve) => setTimeout(resolve, 500));
       navigate(`/game/${gameId}`);
     } catch (error) {
       console.error("Error creating game:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Неизвестная ошибка";
+      alert(errorMessage);
+      setIsCreatingGame(false);
     }
   };
 
@@ -168,9 +183,9 @@ export const HomePage: FC = () => {
               <Button
                 onClick={handleCreateGame}
                 className="w-full max-w-md text-lg"
-                disabled={!selectedPokemonId}
+                disabled={!selectedPokemonId || isCreatingGame}
               >
-                Начать игру
+                {isCreatingGame ? "Создание игры..." : "Начать игру"}
               </Button>
             </div>
           </div>

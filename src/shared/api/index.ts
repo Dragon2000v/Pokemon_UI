@@ -14,6 +14,12 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log("Request headers:", config.headers);
+    console.log("Request URL:", config.url);
+    console.log("Request method:", config.method);
+    console.log("Request data:", config.data);
+  } else {
+    console.warn("No token found in localStorage");
   }
   // Добавляем timestamp для предотвращения кэширования
   if (config.method === "get") {
@@ -26,9 +32,25 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+    return response;
+  },
   (error) => {
+    console.error("API Error:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+        data: error.config?.data,
+      },
+    });
+
     if (error.response?.status === 401) {
+      console.error("Authentication failed - clearing token");
       localStorage.removeItem("token");
     }
     return Promise.reject(error);
