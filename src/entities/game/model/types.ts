@@ -5,6 +5,7 @@ export interface GameState {
   status: GameStatus;
   playerPokemon: Pokemon;
   opponentPokemon: Pokemon;
+  currentTurn?: string;
 }
 
 export type GameStatus = "active" | "won" | "lost";

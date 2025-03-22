@@ -1,11 +1,14 @@
 export interface Pokemon {
   id: string;
+  _id?: string; // Для совместимости с MongoDB
   name: string;
   hp: number;
   attack: number;
-  type: PokemonType;
+  type: PokemonType | PokemonType[];
   moves: Move[];
   imageUrl: string;
+  defense?: number;
+  speed?: number;
 }
 
 export type PokemonType =
@@ -22,6 +25,7 @@ export type PokemonType =
   | "dragon";
 
 export interface Move {
+  _id?: string; // Для совместимости с MongoDB
   name: string;
   power: number;
   type: PokemonType;
@@ -32,6 +36,8 @@ export interface PokemonFromServer {
   name: string;
   hp: number;
   attack: number;
+  defense: number;
+  speed: number;
   type: PokemonType[];
   moves: Move[];
   imageUrl: string;
