@@ -1,7 +1,7 @@
 import { api } from "@/shared/api";
-import { Pokemon } from "@/entities/pokemon/model/types";
+import { Pokemon, PokemonFromServer } from "@/entities/pokemon/model/types";
 
-export const getAllPokemons = async (): Promise<Pokemon[]> => {
+export const getAllPokemons = async (): Promise<PokemonFromServer[]> => {
   const response = await api.get("/pokemon");
   return response.data;
 };

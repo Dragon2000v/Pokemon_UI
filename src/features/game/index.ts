@@ -1,1 +1,1 @@
-export { createGame } from "./api/createGame";
+export { createGame, getGameState, attack } from "./api/gameActions";

@@ -6,6 +6,7 @@ interface Props {
   isOpponent?: boolean;
   isAttacking?: boolean;
   onAttack?: () => void;
+  size?: "small" | "large";
 }
 
 export const PokemonCard: FC<Props> = ({
@@ -13,8 +14,9 @@ export const PokemonCard: FC<Props> = ({
   isOpponent = false,
   isAttacking = false,
   onAttack,
+  size = "large",
 }) => {
-  const maxHp = 100; // Максимальное значение HP
+  const maxHp = 100;
   const hpPercentage = (pokemon.hp / maxHp) * 100;
   const hpColor =
     hpPercentage > 50
@@ -23,19 +25,23 @@ export const PokemonCard: FC<Props> = ({
       ? "bg-yellow-500"
       : "bg-red-500";
 
+  const imageSize = size === "small" ? "w-32 h-32" : "w-48 h-48";
+  const textSize = size === "small" ? "text-base" : "text-xl";
+  const padding = size === "small" ? "p-2" : "p-4";
+
   return (
     <div
       className={`
-        relative p-4 rounded-xl bg-surface/50 backdrop-blur-sm
-        transition-all duration-300 hover:scale-105
+        relative ${padding} rounded-xl bg-surface/50 backdrop-blur-sm
+        transition-all duration-300 hover:scale-105 w-full
         ${isOpponent ? "scale-x-[-1]" : ""}
       `}
     >
-      <div className="mb-4 text-center">
-        <h3 className="text-xl font-bold mb-2">{pokemon.name}</h3>
-        <div className="w-full bg-gray-700 rounded-full h-4 mb-2">
+      <div className="mb-2 text-center">
+        <h3 className={`${textSize} font-bold mb-2`}>{pokemon.name}</h3>
+        <div className="w-full bg-gray-700 rounded-full h-3 mb-1">
           <div
-            className={`${hpColor} h-4 rounded-full transition-all duration-300`}
+            className={`${hpColor} h-3 rounded-full transition-all duration-300`}
             style={{ width: `${hpPercentage}%` }}
           />
         </div>
@@ -46,7 +52,7 @@ export const PokemonCard: FC<Props> = ({
 
       <div
         className={`
-          relative w-48 h-48 mx-auto
+          relative ${imageSize} mx-auto
           ${isAttacking ? "animate-attack" : "animate-idle"}
           ${isOpponent ? "hover:translate-x-[-8px]" : "hover:translate-x-[8px]"}
           transition-transform duration-300 cursor-pointer
@@ -54,7 +60,10 @@ export const PokemonCard: FC<Props> = ({
         onClick={onAttack}
       >
         <img
-          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+          src={
+            pokemon.imageUrl ||
+            `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
+          }
           alt={pokemon.name}
           className="w-full h-full object-contain drop-shadow-2xl"
         />
@@ -65,16 +74,16 @@ export const PokemonCard: FC<Props> = ({
         )}
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="text-center font-semibold">
+      <div className="mt-2 space-y-1">
+        <div className="text-center font-semibold text-sm">
           Attack: {pokemon.attack}
         </div>
-        <div className="flex justify-center gap-2">
-          {pokemon.moves.map((move, index) => (
+        <div className="flex flex-wrap justify-center gap-1">
+          {pokemon.moves?.map((move, index) => (
             <span
               key={index}
               className={`
-                px-3 py-1 rounded-full text-sm font-medium
+                px-2 py-0.5 rounded-full text-xs font-medium
                 ${getTypeColor(move.type)}
               `}
             >
@@ -94,5 +103,5 @@ const getTypeColor = (type: string) => {
     grass: "bg-green-500/50",
     electric: "bg-yellow-500/50",
   };
-  return colors[type] || "bg-gray-500/50";
+  return colors[type.toLowerCase()] || "bg-gray-500/50";
 };
