@@ -1,11 +1,10 @@
 import { withProviders } from "./providers";
+import { Routing } from "@/pages";
 
 function App() {
   return (
     <div className="min-h-screen bg-background text-text">
-      <div className="container mx-auto px-4">
-        {/* Здесь будет контент из роутера */}
-      </div>
+      <Routing />
     </div>
   );
 }

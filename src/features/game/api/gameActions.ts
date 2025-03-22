@@ -1,48 +1,52 @@
 import { GameState } from "@/entities/game";
 import { MOCK_POKEMONS } from "@/entities/pokemon/model/mock";
 
-let mockGameState: GameState = {
+const mockGameState: GameState = {
   id: "1",
   status: "active",
-  playerPokemon: MOCK_POKEMONS["25"], // Pikachu
-  opponentPokemon: MOCK_POKEMONS["6"], // Charizard
+  playerPokemon: MOCK_POKEMONS[0], // Pikachu
+  opponentPokemon: MOCK_POKEMONS[1], // Charizard
 };
+
+let currentGameState = { ...mockGameState };
 
 export const createGame = async (): Promise<string> => {
-  // Reset game state
-  mockGameState = {
-    id: Math.random().toString(36).substring(7),
-    status: "active",
-    playerPokemon: MOCK_POKEMONS["25"],
-    opponentPokemon: MOCK_POKEMONS["6"],
-  };
-  return mockGameState.id;
+  currentGameState = { ...mockGameState };
+  return currentGameState.id;
 };
 
-export const getGameState = async (gameId: string): Promise<GameState> => {
-  return mockGameState;
+export const getGameState = async (): Promise<GameState> => {
+  return currentGameState;
 };
 
-export const attack = async (gameId: string): Promise<void> => {
-  // Simulate battle
-  const damage = Math.floor(Math.random() * 20) + 10;
-  mockGameState.opponentPokemon.hp -= damage;
+export const attack = async (moveName: string): Promise<GameState> => {
+  const move = currentGameState.playerPokemon.moves.find(
+    (m) => m.name === moveName
+  );
+  if (!move) throw new Error("Move not found");
 
-  // Check if opponent is defeated
-  if (mockGameState.opponentPokemon.hp <= 0) {
-    mockGameState.opponentPokemon.hp = 0;
-    mockGameState.status = "won";
-    return;
+  // Рассчитываем урон игрока
+  const playerDamage = Math.floor(
+    (currentGameState.playerPokemon.attack * move.power) / 100
+  );
+  currentGameState.opponentPokemon.hp -= playerDamage;
+
+  // Рассчитываем ответный урон противника
+  const opponentMove =
+    currentGameState.opponentPokemon.moves[
+      Math.floor(Math.random() * currentGameState.opponentPokemon.moves.length)
+    ];
+  const opponentDamage = Math.floor(
+    (currentGameState.opponentPokemon.attack * opponentMove.power) / 100
+  );
+  currentGameState.playerPokemon.hp -= opponentDamage;
+
+  // Проверяем условия победы/поражения
+  if (currentGameState.opponentPokemon.hp <= 0) {
+    currentGameState.status = "won";
+  } else if (currentGameState.playerPokemon.hp <= 0) {
+    currentGameState.status = "lost";
   }
 
-  // Opponent attacks back
-  setTimeout(() => {
-    const opponentDamage = Math.floor(Math.random() * 20) + 10;
-    mockGameState.playerPokemon.hp -= opponentDamage;
-
-    if (mockGameState.playerPokemon.hp <= 0) {
-      mockGameState.playerPokemon.hp = 0;
-      mockGameState.status = "lost";
-    }
-  }, 1000);
+  return currentGameState;
 };
