@@ -3,7 +3,7 @@ import { api } from "@/shared/api";
 import { AxiosError } from "axios";
 import { Pokemon } from "@/entities/pokemon/model/types";
 
-const transformPokemon = (pokemon: any): Pokemon => {
+const transformPokemon = (pokemon: any, currentHP?: number): Pokemon => {
   return {
     id: pokemon._id,
     name: pokemon.name,
@@ -15,7 +15,7 @@ const transformPokemon = (pokemon: any): Pokemon => {
       type: move.type.toLowerCase(),
     })),
     imageUrl: pokemon.imageUrl,
-    hp: pokemon.stats.hp,
+    hp: currentHP ?? pokemon.stats.hp,
   };
 };
 
@@ -110,8 +110,14 @@ export const getGameState = async (gameId: string): Promise<GameState> => {
       throw new Error("Missing pokemon data in game state");
     }
 
-    const playerPokemon = transformPokemon(gameData.playerPokemon);
-    const computerPokemon = transformPokemon(gameData.computerPokemon);
+    const playerPokemon = transformPokemon(
+      gameData.playerPokemon,
+      gameData.playerPokemonCurrentHP
+    );
+    const computerPokemon = transformPokemon(
+      gameData.computerPokemon,
+      gameData.computerPokemonCurrentHP
+    );
 
     return {
       _id: gameData._id,

@@ -46,20 +46,14 @@ export const HomePage: FC = () => {
         if (Array.isArray(data)) {
           // Преобразуем данные в нужный формат
           const transformedPokemons = data.map(
-            (pokemon: PokemonFromServer) => ({
+            (pokemon: PokemonFromServer): Pokemon => ({
               id: pokemon._id,
               name: pokemon.name,
-              hp: pokemon.hp,
-              attack: pokemon.attack,
-              type: Array.isArray(pokemon.type)
-                ? pokemon.type[0]
-                : pokemon.type,
-              moves: pokemon.moves.map((move) => ({
-                name: move.name,
-                power: move.power,
-                type: move.type,
-              })),
+              hp: pokemon.stats.hp,
+              type: pokemon.type,
+              moves: pokemon.moves,
               imageUrl: pokemon.imageUrl,
+              stats: pokemon.stats,
             })
           );
 
@@ -180,7 +174,11 @@ export const HomePage: FC = () => {
                   `}
                   onClick={() => setSelectedPokemonId(pokemon.id)}
                 >
-                  <PokemonCard pokemon={pokemon} size="small" />
+                  <PokemonCard
+                    pokemon={pokemon}
+                    maxHp={pokemon.stats.hp}
+                    size="small"
+                  />
                 </div>
               ))}
             </div>

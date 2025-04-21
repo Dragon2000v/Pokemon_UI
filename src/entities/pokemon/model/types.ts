@@ -30,10 +30,7 @@ export interface Pokemon {
 export interface PokemonFromServer {
   _id: string;
   name: string;
-  hp: number;
-  attack: number;
-  defense: number;
-  speed: number;
+  stats: Stats;
   type: PokemonType[];
   moves: Move[];
   imageUrl: string;
