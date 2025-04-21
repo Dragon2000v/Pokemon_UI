@@ -75,10 +75,10 @@ export const createGame = async (
   }
 };
 
-export const surrender = async (gameId: string): Promise<void> => {
+export const surrender = async (gameId: string): Promise<GameState> => {
   try {
-    await api.post(`/game/${gameId}/surrender`);
-    window.location.href = "/"; // Redirect immediately after successful surrender
+    const response = await api.post(`/game/${gameId}/surrender`);
+    return response.data;
   } catch (error) {
     console.error("Error surrendering:", error);
     throw error;
