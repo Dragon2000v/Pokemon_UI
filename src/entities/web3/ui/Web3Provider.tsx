@@ -1,10 +1,10 @@
 import { FC, ReactNode, createContext, useContext, useState } from "react";
-import { BrowserProvider, JsonRpcSigner } from "ethers";
+import { providers } from "ethers";
 import { authenticate } from "@/features/auth/api/auth";
 
 interface Web3ContextType {
-  provider: BrowserProvider | null;
-  signer: JsonRpcSigner | null;
+  provider: providers.Web3Provider | null;
+  signer: providers.JsonRpcSigner | null;
   isConnecting: boolean;
   error: string | null;
   connect: () => Promise<void>;
@@ -27,8 +27,8 @@ interface Props {
 }
 
 export const Web3Provider: FC<Props> = ({ children }) => {
-  const [provider, setProvider] = useState<BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
+  const [provider, setProvider] = useState<providers.Web3Provider | null>(null);
+  const [signer, setSigner] = useState<providers.JsonRpcSigner | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,8 +38,8 @@ export const Web3Provider: FC<Props> = ({ children }) => {
         setIsConnecting(true);
         setError(null);
         await window.ethereum.request({ method: "eth_requestAccounts" });
-        const provider = new BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
+        const provider = new providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
         await authenticate(signer);
         setProvider(provider);
         setSigner(signer);

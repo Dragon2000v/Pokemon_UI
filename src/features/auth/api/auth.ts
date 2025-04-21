@@ -1,5 +1,5 @@
 import { api } from "@/shared/api";
-import { JsonRpcSigner } from "ethers";
+import { providers } from "ethers";
 
 export const getNonce = async (walletAddress: string) => {
   console.log("Getting nonce for address:", walletAddress);
@@ -21,7 +21,7 @@ export const verifySignature = async (
   return token;
 };
 
-export const authenticate = async (signer: JsonRpcSigner) => {
+export const authenticate = async (signer: providers.JsonRpcSigner) => {
   try {
     console.log("Starting authentication process...");
     const walletAddress = await signer.getAddress();

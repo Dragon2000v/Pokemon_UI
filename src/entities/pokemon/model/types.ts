@@ -1,34 +1,30 @@
-export interface Pokemon {
-  id: string;
-  _id?: string; // Для совместимости с MongoDB
-  name: string;
-  hp: number;
-  attack: number;
-  type: PokemonType | PokemonType[];
-  moves: Move[];
-  imageUrl: string;
-  defense?: number;
-  speed?: number;
-}
-
-export type PokemonType =
-  | "fire"
-  | "water"
-  | "grass"
-  | "electric"
-  | "normal"
-  | "flying"
-  | "poison"
-  | "ground"
-  | "ice"
-  | "steel"
-  | "dragon";
+export type PokemonType = "fire" | "water" | "grass" | "electric";
 
 export interface Move {
-  _id?: string; // Для совместимости с MongoDB
   name: string;
   power: number;
   type: PokemonType;
+}
+
+export interface Stats {
+  hp: number;
+  attack: number;
+  defense: number;
+  speed: number;
+}
+
+export interface Pokemon {
+  id: string;
+  name: string;
+  type: PokemonType[];
+  stats: Stats;
+  moves: Move[];
+  imageUrl?: string;
+  hp: number; // Current HP
+  // Legacy fields for backward compatibility
+  attack?: number;
+  defense?: number;
+  speed?: number;
 }
 
 export interface PokemonFromServer {

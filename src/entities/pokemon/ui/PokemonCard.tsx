@@ -3,6 +3,7 @@ import { Pokemon } from "../model/types";
 
 interface Props {
   pokemon: Pokemon;
+  maxHp: number;
   isOpponent?: boolean;
   isAttacking?: boolean;
   onAttack?: () => void;
@@ -11,12 +12,12 @@ interface Props {
 
 export const PokemonCard: FC<Props> = ({
   pokemon,
+  maxHp,
   isOpponent = false,
   isAttacking = false,
   onAttack,
   size = "large",
 }) => {
-  const maxHp = 100;
   const hpPercentage = (pokemon.hp / maxHp) * 100;
   const hpColor =
     hpPercentage > 50
@@ -34,7 +35,6 @@ export const PokemonCard: FC<Props> = ({
       className={`
         relative ${padding} rounded-xl bg-surface/50 backdrop-blur-sm
         transition-all duration-300 hover:scale-105 w-full
-        ${isOpponent ? "scale-x-[-1]" : ""}
       `}
     >
       <div className="mb-2 text-center">
@@ -54,8 +54,8 @@ export const PokemonCard: FC<Props> = ({
         className={`
           relative ${imageSize} mx-auto
           ${isAttacking ? "animate-attack" : "animate-idle"}
-          ${isOpponent ? "hover:translate-x-[-8px]" : "hover:translate-x-[8px]"}
           transition-transform duration-300 cursor-pointer
+          ${isOpponent ? "scale-x-[-1]" : ""}
         `}
         onClick={onAttack}
       >
@@ -65,7 +65,10 @@ export const PokemonCard: FC<Props> = ({
             `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
           }
           alt={pokemon.name}
-          className="w-full h-full object-contain drop-shadow-2xl"
+          className={`
+            w-full h-full object-contain drop-shadow-2xl
+            ${isOpponent ? "scale-x-[-1]" : ""}
+          `}
         />
         {isAttacking && (
           <div className="absolute inset-0 animate-flash">
@@ -96,12 +99,12 @@ export const PokemonCard: FC<Props> = ({
   );
 };
 
-const getTypeColor = (type: string) => {
+const getTypeColor = (type: string): string => {
   const colors: Record<string, string> = {
-    fire: "bg-red-500/50",
-    water: "bg-blue-500/50",
-    grass: "bg-green-500/50",
-    electric: "bg-yellow-500/50",
+    fire: "bg-red-500/20 text-red-500",
+    water: "bg-blue-500/20 text-blue-500",
+    grass: "bg-green-500/20 text-green-500",
+    electric: "bg-yellow-500/20 text-yellow-500",
   };
-  return colors[type.toLowerCase()] || "bg-gray-500/50";
+  return colors[type] || "bg-gray-500/20 text-gray-500";
 };

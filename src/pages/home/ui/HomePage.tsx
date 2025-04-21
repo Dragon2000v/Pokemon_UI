@@ -95,7 +95,7 @@ export const HomePage: FC = () => {
     }
   }, [signer]);
 
-  const handleCreateGame = async () => {
+  const handleCreateGame = async (isAI: boolean) => {
     if (!signer) {
       console.log("No signer, connecting wallet...");
       await connect();
@@ -109,8 +109,13 @@ export const HomePage: FC = () => {
 
     try {
       setIsCreatingGame(true);
-      console.log("Creating game with pokemon:", selectedPokemonId);
-      const gameId = await createGame(selectedPokemonId);
+      console.log(
+        "Creating game with pokemon:",
+        selectedPokemonId,
+        "AI mode:",
+        isAI
+      );
+      const gameId = await createGame(selectedPokemonId, isAI);
       console.log("Game created with ID:", gameId);
 
       if (!gameId) {
@@ -151,8 +156,8 @@ export const HomePage: FC = () => {
             Pokemon Battle
           </h1>
           <p className="text-xl mb-8 text-text/80">
-            Подключи свой кошелек и начни сражение с покемонами! Брось вызов
-            компьютеру в эпической пошаговой битве.
+            Подключи свой кошелек и начни сражение с покемонами! Выбери режим
+            игры: против ИИ или против других игроков.
           </p>
         </div>
 
@@ -179,32 +184,29 @@ export const HomePage: FC = () => {
                 </div>
               ))}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-4">
               <Button
-                onClick={handleCreateGame}
-                className="w-full max-w-md text-lg"
+                onClick={() => handleCreateGame(true)}
+                className="w-48 text-lg"
                 disabled={!selectedPokemonId || isCreatingGame}
               >
-                {isCreatingGame ? "Создание игры..." : "Начать игру"}
+                {isCreatingGame ? "Создание игры..." : "Играть с ИИ"}
+              </Button>
+              <Button
+                onClick={() => handleCreateGame(false)}
+                className="w-48 text-lg"
+                disabled={!selectedPokemonId || isCreatingGame}
+                variant="secondary"
+              >
+                {isCreatingGame ? "Создание игры..." : "Играть с игроками"}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center space-y-4">
-            <Button onClick={connect} className="w-full max-w-md text-lg">
+          <div className="text-center">
+            <Button onClick={connect} className="text-lg">
               Подключить кошелек
             </Button>
-            <p className="text-sm text-text/60">
-              Для игры нужно подключить кошелек. Нет кошелька?{" "}
-              <a
-                href="https://metamask.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                Установить MetaMask
-              </a>
-            </p>
           </div>
         )}
       </div>

@@ -1,8 +1,28 @@
 import { GameState } from "@/entities/game";
 import { api } from "@/shared/api";
 import { AxiosError } from "axios";
+import { Pokemon } from "@/entities/pokemon/model/types";
 
-export const createGame = async (pokemonId: string): Promise<string> => {
+const transformPokemon = (pokemon: any): Pokemon => {
+  return {
+    id: pokemon._id,
+    name: pokemon.name,
+    type: [pokemon.type],
+    stats: pokemon.stats,
+    moves: pokemon.moves.map((move: any) => ({
+      name: move.name,
+      power: move.power,
+      type: move.type.toLowerCase(),
+    })),
+    imageUrl: pokemon.imageUrl,
+    hp: pokemon.stats.hp,
+  };
+};
+
+export const createGame = async (
+  pokemonId: string,
+  isAI: boolean = true
+): Promise<string> => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -13,10 +33,11 @@ export const createGame = async (pokemonId: string): Promise<string> => {
       throw new Error("Pokemon ID is required");
     }
 
-    console.log("Creating game with pokemonId:", pokemonId);
+    console.log("Creating game with pokemonId:", pokemonId, "isAI:", isAI);
 
     const response = await api.post("/game/create", {
       pokemonId: pokemonId.toString(),
+      isAI,
     });
 
     console.log("Create game response:", response.data);
@@ -54,6 +75,32 @@ export const createGame = async (pokemonId: string): Promise<string> => {
   }
 };
 
+export const surrender = async (gameId: string): Promise<void> => {
+  try {
+    if (!gameId) {
+      throw new Error("Game ID is required");
+    }
+
+    await api.post(`/game/${gameId}/surrender`);
+  } catch (error) {
+    console.error("Error surrendering:", error);
+    if (error instanceof AxiosError) {
+      if (error.response?.status === 404) {
+        throw new Error("Game not found");
+      } else if (error.response?.status === 401) {
+        throw new Error("Authorization error");
+      } else {
+        throw new Error(
+          `Surrender error: ${
+            error.response?.data?.message || "Failed to surrender"
+          }`
+        );
+      }
+    }
+    throw error;
+  }
+};
+
 export const getGameState = async (gameId: string): Promise<GameState> => {
   try {
     if (!gameId) {
@@ -66,109 +113,67 @@ export const getGameState = async (gameId: string): Promise<GameState> => {
 
     const gameData = response.data;
 
-    // Проверяем наличие всех необходимых полей
     if (!gameData || typeof gameData !== "object") {
       console.error("Invalid game data format:", gameData);
       throw new Error("Invalid game state data received from server");
     }
 
-    if (!gameData.player1 || !gameData.player2) {
-      console.error("Missing player data:", {
-        player1: gameData.player1,
-        player2: gameData.player2,
-      });
-      throw new Error("Missing player data in game state");
-    }
-
-    // Определяем, какой покемон принадлежит текущему игроку
-    const token = localStorage.getItem("token");
-    const isPlayer1 = token === gameData.player1.address;
-
-    const playerPokemon = isPlayer1
-      ? gameData.player1.pokemon
-      : gameData.player2.pokemon;
-    const opponentPokemon = isPlayer1
-      ? gameData.player2.pokemon
-      : gameData.player1.pokemon;
-
-    if (!playerPokemon || !opponentPokemon) {
+    if (!gameData.playerPokemon || !gameData.computerPokemon) {
       console.error("Missing pokemon data:", {
-        playerPokemon,
-        opponentPokemon,
+        playerPokemon: gameData.playerPokemon,
+        computerPokemon: gameData.computerPokemon,
       });
       throw new Error("Missing pokemon data in game state");
     }
 
-    // Преобразуем данные в нужный формат
-    const state: GameState = {
-      id: gameData._id,
-      status: gameData.status,
-      currentTurn: gameData.currentTurn,
-      playerPokemon: {
-        id: playerPokemon._id,
-        name: playerPokemon.name,
-        hp: playerPokemon.hp,
-        attack: playerPokemon.attack,
-        type: Array.isArray(playerPokemon.type)
-          ? playerPokemon.type[0]
-          : playerPokemon.type,
-        moves: playerPokemon.moves,
-        imageUrl: playerPokemon.imageUrl,
-      },
-      opponentPokemon: {
-        id: opponentPokemon._id,
-        name: opponentPokemon.name,
-        hp: opponentPokemon.hp,
-        attack: opponentPokemon.attack,
-        type: Array.isArray(opponentPokemon.type)
-          ? opponentPokemon.type[0]
-          : opponentPokemon.type,
-        moves: opponentPokemon.moves,
-        imageUrl: opponentPokemon.imageUrl,
-      },
-    };
+    const playerPokemon = transformPokemon(gameData.playerPokemon);
+    const computerPokemon = transformPokemon(gameData.computerPokemon);
 
-    console.log("Transformed game state:", state);
-    return state;
+    return {
+      _id: gameData._id,
+      player: gameData.player,
+      playerPokemon,
+      computerPokemon,
+      status: gameData.status,
+      winner: gameData.winner,
+      currentTurn: gameData.currentTurn,
+      battleLog: gameData.battleLog || [],
+      playerPokemonCurrentHP: gameData.playerPokemonCurrentHP,
+      computerPokemonCurrentHP: gameData.computerPokemonCurrentHP,
+    };
   } catch (error) {
     console.error("Error getting game state:", error);
     if (error instanceof AxiosError) {
       if (error.response?.status === 404) {
-        throw new Error("Игра не найдена");
-      } else if (error.response?.status === 401) {
-        throw new Error("Ошибка авторизации");
-      } else {
-        throw new Error(
-          `Ошибка сервера: ${
-            error.response?.data?.message ||
-            "Не удалось получить состояние игры"
-          }`
-        );
+        throw new Error("Game not found");
       }
     }
     throw error;
   }
 };
 
-export const attack = async (gameId: string): Promise<GameState> => {
+export const attack = async (
+  gameId: string,
+  moveName?: string
+): Promise<void> => {
   try {
     if (!gameId) {
       throw new Error("Game ID is required");
     }
 
-    await api.post(`/game/${gameId}/attack`);
-    return await getGameState(gameId);
+    console.log("Attacking in game:", gameId, "with move:", moveName);
+    await api.post(`/game/${gameId}/attack`, { moveName });
   } catch (error) {
-    console.error("Error performing attack:", error);
+    console.error("Error attacking:", error);
     if (error instanceof AxiosError) {
       if (error.response?.status === 404) {
-        throw new Error("Игра не найдена");
+        throw new Error("Game not found");
       } else if (error.response?.status === 401) {
-        throw new Error("Ошибка авторизации");
+        throw new Error("Authorization error");
       } else {
         throw new Error(
-          `Ошибка атаки: ${
-            error.response?.data?.message || "Не удалось выполнить атаку"
+          `Attack error: ${
+            error.response?.data?.message || "Failed to perform attack"
           }`
         );
       }
