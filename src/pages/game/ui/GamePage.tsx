@@ -40,15 +40,48 @@ export const GamePage: FC = () => {
         // Update battle logs
         if (state.battleLog && state.battleLog.length > 0) {
           const newLogs = state.battleLog.map((log) => {
-            if (log.attacker === "computer") {
-              return `${state.computerPokemon.name} uses ${
-                log.move || "attack"
-              }! Deals ${log.damage} damage!`;
+            const attacker =
+              log.attacker === "computer"
+                ? state.computerPokemon
+                : state.playerPokemon;
+            const defender =
+              log.attacker === "computer"
+                ? state.playerPokemon
+                : state.computerPokemon;
+            const move = attacker.moves.find((m) => m.name === log.move);
+            const moveType = move?.type || "";
+            const effectiveness = getTypeMultiplier(moveType, defender.type);
+            const attackModifier = attacker.stats.attack / 100;
+            const defenseModifier = 1 - defender.stats.defense / 300;
+
+            let effectivenessText = "";
+            let damageCalculation = "";
+
+            if (log.damage > 1) {
+              if (effectiveness > 1) {
+                effectivenessText = "(Супер эффективно!)";
+              } else if (effectiveness < 1) {
+                effectivenessText = "(Не очень эффективно...)";
+              }
+
+              damageCalculation = `Базовый урон ${
+                move?.power || 0
+              } × Атака (${Math.round(
+                attackModifier * 100
+              )}%) × Защита (${Math.round(
+                (1 - defenseModifier) * 100
+              )}%) × Тип (${effectiveness}x) × 1.5 = ${log.damage}`;
             } else {
-              return `${state.playerPokemon.name} uses ${
-                log.move || "attack"
-              }! Deals ${log.damage} damage!`;
+              damageCalculation = "Атака оказалась слишком слабой...";
             }
+
+            const attackerName =
+              log.attacker === "computer"
+                ? state.computerPokemon.name
+                : state.playerPokemon.name;
+            const moveName = log.move || "атаку";
+
+            return `${attackerName} использует ${moveName}! ${effectivenessText} ${damageCalculation}`;
           });
           setBattleLogs(newLogs);
         }
@@ -161,6 +194,48 @@ export const GamePage: FC = () => {
     }
   };
 
+  const getTypeMultiplier = (
+    moveType: string,
+    defenderTypes: string | string[]
+  ): number => {
+    const typeChart: Record<string, Record<string, number>> = {
+      fire: { water: 0.5, grass: 2, electric: 1, fire: 0.5 },
+      water: { fire: 2, grass: 0.5, electric: 0.5, water: 0.5 },
+      grass: { fire: 0.5, water: 2, electric: 1, grass: 0.5 },
+      electric: { fire: 1, water: 2, grass: 0.5, electric: 0.5 },
+    };
+
+    // Если тип защищающегося покемона - массив, берем первый тип
+    const defenderType = Array.isArray(defenderTypes)
+      ? defenderTypes[0]
+      : defenderTypes;
+
+    return typeChart[moveType.toLowerCase()]?.[defenderType.toLowerCase()] || 1;
+  };
+
+  const calculateMoveDamage = (
+    move: any,
+    attacker: any,
+    defender: any
+  ): number => {
+    // Base damage from move power
+    const baseDamage = move.power;
+
+    // Apply attack and defense modifiers
+    const attackModifier = attacker.stats.attack / 100;
+    const defenseModifier = 1 - defender.stats.defense / 300;
+
+    // Calculate type effectiveness
+    const typeMultiplier = getTypeMultiplier(move.type, defender.type);
+
+    // Final damage calculation with increased base multiplier
+    const finalDamage =
+      baseDamage * attackModifier * defenseModifier * typeMultiplier * 1.5; // Увеличили базовый множитель
+
+    // Ensure minimum damage of 1
+    return Math.max(1, Math.floor(finalDamage));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -222,20 +297,29 @@ export const GamePage: FC = () => {
 
       <div className="mt-8 flex flex-col items-center gap-6">
         <div className="flex gap-4">
-          {gameState.playerPokemon.moves?.map((move, index) => (
-            <Button
-              key={index}
-              variant={selectedMove === move.name ? "primary" : "secondary"}
-              onClick={() => setSelectedMove(move.name)}
-              disabled={
-                gameState.status !== "active" ||
-                isAttacking ||
-                gameState.currentTurn !== "player"
-              }
-            >
-              {move.name}
-            </Button>
-          ))}
+          {gameState.playerPokemon.moves?.map((move, index) => {
+            const damage = calculateMoveDamage(
+              move,
+              gameState.playerPokemon,
+              gameState.computerPokemon
+            );
+            return (
+              <Button
+                key={index}
+                variant={selectedMove === move.name ? "primary" : "secondary"}
+                onClick={() => setSelectedMove(move.name)}
+                disabled={
+                  gameState.status !== "active" ||
+                  isAttacking ||
+                  gameState.currentTurn !== "player"
+                }
+                className="flex flex-col items-center"
+              >
+                <span>{move.name}</span>
+                <span className="text-xs opacity-80">Урон: {damage}</span>
+              </Button>
+            );
+          })}
         </div>
 
         <div className="flex gap-4">

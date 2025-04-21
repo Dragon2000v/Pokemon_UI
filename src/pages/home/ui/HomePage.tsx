@@ -160,13 +160,15 @@ export const HomePage: FC = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-4 text-center">
             Pokemon Battle
           </h1>
-          <p className="text-xl mb-8 text-text/80">
-            Подключи свой кошелек и начни сражение с покемонами! Выбери режим
-            игры: против ИИ или против других игроков.
-          </p>
+          {!signer && (
+            <p className="text-xl mb-8 text-text/80">
+              Подключи свой кошелек и начни сражение с покемонами! Выбери режим
+              игры: против ИИ или против других игроков.
+            </p>
+          )}
         </div>
 
         {signer ? (

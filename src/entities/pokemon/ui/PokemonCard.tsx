@@ -81,18 +81,31 @@ export const PokemonCard: FC<Props> = ({
         <div className="text-center font-semibold text-sm">
           Attack: {pokemon.attack}
         </div>
-        <div className="flex flex-wrap justify-center gap-1">
-          {pokemon.moves?.map((move, index) => (
+        <div className="flex flex-wrap justify-center gap-2">
+          {Array.isArray(pokemon.type) ? (
+            pokemon.type.map((type, index) => (
+              <span
+                key={index}
+                className={`
+                  px-3 py-1 rounded-full text-xs font-bold
+                  shadow-md hover:shadow-lg transition-shadow duration-200
+                  ${getTypeColor(type)}
+                `}
+              >
+                {(type as string).toUpperCase()}
+              </span>
+            ))
+          ) : (
             <span
-              key={index}
               className={`
-                px-2 py-0.5 rounded-full text-xs font-medium
-                ${getTypeColor(move.type)}
+                px-3 py-1 rounded-full text-xs font-bold
+                shadow-md hover:shadow-lg transition-shadow duration-200
+                ${getTypeColor(pokemon.type)}
               `}
             >
-              {move.name}
+              {(pokemon.type as string).toUpperCase()}
             </span>
-          ))}
+          )}
         </div>
       </div>
     </div>
@@ -101,10 +114,40 @@ export const PokemonCard: FC<Props> = ({
 
 const getTypeColor = (type: string): string => {
   const colors: Record<string, string> = {
-    fire: "bg-red-500/20 text-red-500",
-    water: "bg-blue-500/20 text-blue-500",
-    grass: "bg-green-500/20 text-green-500",
-    electric: "bg-yellow-500/20 text-yellow-500",
+    fire: "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-red-500/30",
+    water:
+      "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-500/30",
+    grass:
+      "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-green-500/30",
+    electric:
+      "bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-yellow-500/30",
+    normal:
+      "bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-gray-500/30",
+    fighting:
+      "bg-gradient-to-r from-red-700 to-red-800 text-white shadow-red-700/30",
+    flying:
+      "bg-gradient-to-r from-blue-300 to-blue-400 text-white shadow-blue-300/30",
+    poison:
+      "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-purple-500/30",
+    ground:
+      "bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-yellow-600/30",
+    rock: "bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-gray-600/30",
+    bug: "bg-gradient-to-r from-green-400 to-green-500 text-white shadow-green-400/30",
+    ghost:
+      "bg-gradient-to-r from-purple-700 to-purple-800 text-white shadow-purple-700/30",
+    steel:
+      "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-gray-500/30",
+    psychic:
+      "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-pink-500/30",
+    ice: "bg-gradient-to-r from-blue-200 to-blue-300 text-white shadow-blue-200/30",
+    dragon:
+      "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-600/30",
+    dark: "bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-gray-800/30",
+    fairy:
+      "bg-gradient-to-r from-pink-300 to-pink-400 text-white shadow-pink-300/30",
   };
-  return colors[type] || "bg-gray-500/20 text-gray-500";
+  return (
+    colors[type.toLowerCase()] ||
+    "bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-gray-400/30"
+  );
 };
