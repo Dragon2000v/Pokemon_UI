@@ -77,26 +77,10 @@ export const createGame = async (
 
 export const surrender = async (gameId: string): Promise<void> => {
   try {
-    if (!gameId) {
-      throw new Error("Game ID is required");
-    }
-
     await api.post(`/game/${gameId}/surrender`);
+    window.location.href = "/"; // Redirect immediately after successful surrender
   } catch (error) {
     console.error("Error surrendering:", error);
-    if (error instanceof AxiosError) {
-      if (error.response?.status === 404) {
-        throw new Error("Game not found");
-      } else if (error.response?.status === 401) {
-        throw new Error("Authorization error");
-      } else {
-        throw new Error(
-          `Surrender error: ${
-            error.response?.data?.message || "Failed to surrender"
-          }`
-        );
-      }
-    }
     throw error;
   }
 };
