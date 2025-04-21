@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useWeb3 } from "@/entities/web3";
 import { createGame } from "@/features/game";
 import { getAllPokemons } from "@/features/pokemon/api/pokemon";
-import { Pokemon, PokemonFromServer } from "@/entities/pokemon/model/types";
+import {
+  Pokemon,
+  PokemonFromServer,
+  PokemonType,
+} from "@/entities/pokemon/model/types";
 import { Button } from "@/shared/ui/button";
 import { PokemonCard } from "@/entities/pokemon/ui/PokemonCard";
 import { AxiosError } from "axios";
@@ -128,6 +132,16 @@ export const HomePage: FC = () => {
     }
   };
 
+  const getTypeColor = (type: PokemonType): string => {
+    const colors: Record<PokemonType, string> = {
+      fire: "bg-red-500/20 text-red-500",
+      water: "bg-blue-500/20 text-blue-500",
+      grass: "bg-green-500/20 text-green-500",
+      electric: "bg-yellow-500/20 text-yellow-500",
+    };
+    return colors[type];
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -160,6 +174,61 @@ export const HomePage: FC = () => {
             <h2 className="text-2xl font-bold text-center">
               Выберите своего покемона
             </h2>
+
+            {/* Selected Pokemon Details */}
+            {selectedPokemonId && (
+              <div className="bg-surface/50 backdrop-blur-sm rounded-xl p-6 max-w-2xl mx-auto">
+                {pokemons.map((pokemon) =>
+                  pokemon.id === selectedPokemonId ? (
+                    <div
+                      key={pokemon.id}
+                      className="flex flex-col md:flex-row gap-6 items-center"
+                    >
+                      <div className="w-48">
+                        <PokemonCard
+                          pokemon={pokemon}
+                          maxHp={pokemon.stats.hp}
+                          size="small"
+                        />
+                      </div>
+                      <div className="flex-1 space-y-4">
+                        <div>
+                          <h3 className="text-xl font-bold mb-2">
+                            Характеристики
+                          </h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>Атака: {pokemon.stats.attack}</div>
+                            <div>Защита: {pokemon.stats.defense}</div>
+                            <div>Скорость: {pokemon.stats.speed}</div>
+                            <div>HP: {pokemon.stats.hp}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold mb-2">Атаки</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            {pokemon.moves.map((move, index) => (
+                              <div
+                                key={index}
+                                className={`
+                                  p-2 rounded-lg
+                                  ${getTypeColor(move.type)}
+                                `}
+                              >
+                                <div className="font-semibold">{move.name}</div>
+                                <div className="text-sm opacity-80">
+                                  Сила: {move.power}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {pokemons.map((pokemon) => (
                 <div
