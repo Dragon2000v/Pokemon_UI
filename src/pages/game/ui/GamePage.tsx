@@ -1,15 +1,11 @@
 import { FC, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWeb3 } from "../../../entities/web3";
-import {
-  getGameState,
-  attack,
-  surrender,
-} from "../../../features/game/api/gameActions";
 import { GameState } from "../../../entities/game";
 import { PokemonCard } from "@/entities/pokemon/ui/PokemonCard";
 import { BattleLog } from "@/widgets/battle-log";
 import { Button } from "@/shared/ui/button";
+import { socketClient } from "@/shared/lib/socket";
 
 export const GamePage: FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,156 +20,99 @@ export const GamePage: FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchGameState = async () => {
-      if (!id) return;
+    if (!id) return;
 
-      try {
-        const state = await getGameState(id);
-        if (!isMounted) return;
+    const socket = socketClient.connect();
 
-        // Check if we have all required data
-        if (!state.playerPokemon || !state.computerPokemon) {
-          throw new Error("Invalid game state - missing pokemon data");
-        }
+    socket.emit("joinGame", id);
 
-        // Update battle logs
-        if (state.battleLog && state.battleLog.length > 0) {
-          const newLogs = state.battleLog.map((log) => {
-            const attacker =
-              log.attacker === "computer"
-                ? state.computerPokemon
-                : state.playerPokemon;
-            const defender =
-              log.attacker === "computer"
-                ? state.playerPokemon
-                : state.computerPokemon;
-            const move = attacker.moves.find((m) => m.name === log.move);
-            const moveType = move?.type || "";
-            const effectiveness = getTypeMultiplier(moveType, defender.type);
-            const attackModifier = attacker.stats.attack / 100;
-            const defenseModifier = 1 - defender.stats.defense / 300;
+    socket.on("gameState", (state: GameState) => {
+      setGameState(state);
+      setLoading(false);
 
-            let effectivenessText = "";
-            let damageCalculation = "";
+      if (state.battleLog && state.battleLog.length > 0) {
+        const newLogs = state.battleLog.map((log) => {
+          const attacker =
+            log.attacker === "computer"
+              ? state.computerPokemon
+              : state.playerPokemon;
+          const defender =
+            log.attacker === "computer"
+              ? state.playerPokemon
+              : state.computerPokemon;
+          const move = attacker.moves.find((m) => m.name === log.move);
+          const moveType = move?.type || "";
+          const effectiveness = getTypeMultiplier(moveType, defender.type);
+          const attackModifier = attacker.stats.attack / 100;
+          const defenseModifier = 1 - defender.stats.defense / 300;
 
-            if (log.damage > 1) {
-              if (effectiveness > 1) {
-                effectivenessText = "(Супер эффективно!)";
-              } else if (effectiveness < 1) {
-                effectivenessText = "(Не очень эффективно...)";
-              }
+          let effectivenessText = "";
+          let damageCalculation = "";
 
-              damageCalculation = `Базовый урон ${
-                move?.power || 0
-              } × Атака (${Math.round(
-                attackModifier * 100
-              )}%) × Защита (${Math.round(
-                (1 - defenseModifier) * 100
-              )}%) × Тип (${effectiveness}x) × 1.5 = ${log.damage}`;
-            } else {
-              damageCalculation = "Атака оказалась слишком слабой...";
+          if (log.damage > 1) {
+            if (effectiveness > 1) {
+              effectivenessText = "(Супер эффективно!)";
+            } else if (effectiveness < 1) {
+              effectivenessText = "(Не очень эффективно...)";
             }
 
-            const attackerName =
-              log.attacker === "computer"
-                ? state.computerPokemon.name
-                : state.playerPokemon.name;
-            const moveName = log.move || "атаку";
+            damageCalculation = `Базовый урон ${
+              move?.power || 0
+            } × Атака (${Math.round(
+              attackModifier * 100
+            )}%) × Защита (${Math.round(
+              (1 - defenseModifier) * 100
+            )}%) × Тип (${effectiveness}x) × 1.5 = ${log.damage}`;
+          } else {
+            damageCalculation = "Атака оказалась слишком слабой...";
+          }
 
-            return `${attackerName} использует ${moveName}! ${effectivenessText} ${damageCalculation}`;
-          });
-          setBattleLogs(newLogs);
-        }
-
-        // Update Pokemon HP
-        const updatedState = {
-          ...state,
-          playerPokemon: {
-            ...state.playerPokemon,
-            hp: state.playerPokemonCurrentHP,
-            stats: state.playerPokemon.stats || {
-              hp: 100,
-              attack: state.playerPokemon.attack || 50,
-              defense: state.playerPokemon.defense || 50,
-              speed: state.playerPokemon.speed || 50,
-            },
-          },
-          computerPokemon: {
-            ...state.computerPokemon,
-            hp: state.computerPokemonCurrentHP,
-            stats: state.computerPokemon.stats || {
-              hp: 100,
-              attack: state.computerPokemon.attack || 50,
-              defense: state.computerPokemon.defense || 50,
-              speed: state.computerPokemon.speed || 50,
-            },
-          },
-        };
-
-        setGameState(updatedState);
-        setError(null);
-        setLoading(false);
-      } catch (error) {
-        if (!isMounted) return;
-        console.error("Error fetching game state:", error);
-        setError(
-          error instanceof Error ? error.message : "Error fetching game state"
-        );
-        setLoading(false);
+          return `${log.attacker === "player" ? "ХОД ИГРОКА" : "ХОД ИИ"}\n${
+            attacker.name
+          } использует ${log.move}! ${effectivenessText} Наносит ${
+            log.damage
+          } урона! ${damageCalculation}`;
+        });
+        setBattleLogs(newLogs);
       }
-    };
+    });
 
-    fetchGameState();
-    const interval = setInterval(fetchGameState, 2000);
+    socket.on("error", (errorMessage: string) => {
+      setError(errorMessage);
+    });
 
     return () => {
-      isMounted = false;
-      clearInterval(interval);
+      socket.off("gameState");
+      socket.off("error");
     };
   }, [id]);
 
   const handleAttack = async () => {
-    if (!id || !gameState || isAttacking || gameState.currentTurn !== "player")
-      return;
+    if (!id || !gameState || !selectedMove) return;
 
     try {
       setIsAttacking(true);
       setError(null);
-      await attack(id, selectedMove || undefined);
-      const newState = await getGameState(id);
 
-      // Update Pokemon HP
-      const updatedState = {
-        ...newState,
-        playerPokemon: {
-          ...newState.playerPokemon,
-          hp: newState.playerPokemonCurrentHP,
-          stats: newState.playerPokemon.stats || {
-            hp: 100,
-            attack: newState.playerPokemon.attack || 50,
-            defense: newState.playerPokemon.defense || 50,
-            speed: newState.playerPokemon.speed || 50,
-          },
-        },
-        computerPokemon: {
-          ...newState.computerPokemon,
-          hp: newState.computerPokemonCurrentHP,
-          stats: newState.computerPokemon.stats || {
-            hp: 100,
-            attack: newState.computerPokemon.attack || 50,
-            defense: newState.computerPokemon.defense || 50,
-            speed: newState.computerPokemon.speed || 50,
-          },
-        },
-      };
+      const socket = socketClient.getSocket();
+      if (!socket) throw new Error("Socket not connected");
 
-      setGameState(updatedState);
+      socket.emit("attack", { gameId: id, moveName: selectedMove });
       setSelectedMove(null);
+
+      // Add delay for attack animation
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsAttacking(false);
+
+      // Add delay before computer's attack
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setIsOpponentAttacking(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsOpponentAttacking(false);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error attacking");
-    } finally {
       setIsAttacking(false);
+      setIsOpponentAttacking(false);
     }
   };
 
@@ -181,16 +120,12 @@ export const GamePage: FC = () => {
     if (!id || !gameState || gameState.status !== "active") return;
 
     try {
-      setLoading(true);
-      await surrender(id);
-      const finalState = await getGameState(id);
-      setGameState(finalState);
-      setBattleLogs((prev) => [...prev, "You surrendered!"]);
-      setTimeout(() => navigate("/"), 1000);
+      const socket = socketClient.getSocket();
+      if (!socket) throw new Error("Socket not connected");
+
+      socket.emit("surrender", id);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error surrendering");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -278,7 +213,10 @@ export const GamePage: FC = () => {
         <div className="relative w-full grid grid-cols-2 gap-8 items-center">
           <div className="flex justify-center">
             <PokemonCard
-              pokemon={gameState.playerPokemon}
+              pokemon={{
+                ...gameState.playerPokemon,
+                hp: gameState.playerPokemonCurrentHP,
+              }}
               maxHp={playerMaxHp}
               isAttacking={isAttacking}
               onAttack={handleAttack}
@@ -286,7 +224,10 @@ export const GamePage: FC = () => {
           </div>
           <div className="flex justify-center">
             <PokemonCard
-              pokemon={gameState.computerPokemon}
+              pokemon={{
+                ...gameState.computerPokemon,
+                hp: gameState.computerPokemonCurrentHP,
+              }}
               maxHp={computerMaxHp}
               isOpponent
               isAttacking={isOpponentAttacking}

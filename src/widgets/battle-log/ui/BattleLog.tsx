@@ -36,9 +36,7 @@ export const BattleLog: FC<Props> = ({ logs }) => {
             </div>
           ) : (
             logs.map((log, index) => {
-              const isPlayerAction =
-                log.toLowerCase().includes("использует") &&
-                !log.toLowerCase().includes("computer");
+              const isPlayerAction = log.startsWith("ХОД ИГРОКА");
               const isDamage = log.toLowerCase().includes("наносит");
               const isSurrender = log.toLowerCase().includes("сдался");
               const isEffective = log
@@ -72,23 +70,26 @@ export const BattleLog: FC<Props> = ({ logs }) => {
                   <div className="flex items-center gap-2">
                     {isPlayerAction ? (
                       <span className="text-primary text-sm uppercase font-bold tracking-wider">
-                        Ваш ход
+                        ХОД ИГРОКА
                       </span>
                     ) : (
                       <span className="text-secondary text-sm uppercase font-bold tracking-wider">
-                        Ход противника
+                        ХОД ИИ
                       </span>
                     )}
                   </div>
                   <div className="mt-2 leading-relaxed">
-                    {log.split("!").map((part, i) => {
-                      const isEffectiveness = part.includes("эффективно");
-                      const isDamageText = part.includes("Наносит");
-                      const isCalculation = part.includes("Базовый урон");
-                      return (
-                        <span
-                          key={i}
-                          className={`
+                    {log
+                      .split("\n")[1]
+                      .split("!")
+                      .map((part, i) => {
+                        const isEffectiveness = part.includes("эффективно");
+                        const isDamageText = part.includes("Наносит");
+                        const isCalculation = part.includes("Базовый урон");
+                        return (
+                          <span
+                            key={i}
+                            className={`
                             ${
                               isEffectiveness && part.includes("Супер")
                                 ? "text-green-500 font-semibold"
@@ -102,12 +103,14 @@ export const BattleLog: FC<Props> = ({ logs }) => {
                             ${isDamageText ? "font-bold" : ""}
                             ${isCalculation ? "text-sm opacity-75" : ""}
                           `}
-                        >
-                          {part}
-                          {i < log.split("!").length - 1 ? "!" : ""}
-                        </span>
-                      );
-                    })}
+                          >
+                            {part}
+                            {i < log.split("\n")[1].split("!").length - 1
+                              ? "!"
+                              : ""}
+                          </span>
+                        );
+                      })}
                   </div>
                 </div>
               );
