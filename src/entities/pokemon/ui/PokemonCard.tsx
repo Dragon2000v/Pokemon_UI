@@ -79,18 +79,22 @@ export const PokemonCard: FC<Props> = ({
           Attack: {pokemon.stats.attack}
         </div>
         <div className="flex flex-wrap justify-center gap-2">
-          {pokemon.types.map((type, index) => (
-            <span
-              key={index}
-              className={`
-                px-3 py-1 rounded-full text-xs font-bold
-                shadow-md hover:shadow-lg transition-shadow duration-200
-                ${getTypeColor(type)}
-              `}
-            >
-              {type.toUpperCase()}
-            </span>
-          ))}
+          {pokemon?.types?.length > 0 ? (
+            pokemon.types.map((type, index) => (
+              <span
+                key={index}
+                className={`
+                  px-3 py-1 rounded-full text-xs font-bold
+                  shadow-md hover:shadow-lg transition-shadow duration-200
+                  ${getTypeColor(type)}
+                `}
+              >
+                {type.toUpperCase()}
+              </span>
+            ))
+          ) : (
+            <span className="text-xs text-gray-500">No types available</span>
+          )}
         </div>
       </div>
     </div>
