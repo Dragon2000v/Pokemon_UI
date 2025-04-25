@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Pokemon } from "@/shared/api/types";
+import { Pokemon } from "@/entities/pokemon/model/types";
 
 interface Props {
   pokemon: Pokemon;
@@ -25,7 +25,7 @@ export const ComputerPokemon: FC<Props> = ({ pokemon, isAttacking }) => {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/5 to-transparent rounded-xl" />
         <img
-          src={pokemon.sprites?.front_default || defaultSprite}
+          src={pokemon.imageUrl || defaultSprite}
           alt={pokemon.name}
           className={`w-full h-48 object-contain ${
             isAttacking ? "animate-bounce" : ""
@@ -35,7 +35,7 @@ export const ComputerPokemon: FC<Props> = ({ pokemon, isAttacking }) => {
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
         <div>Атака: {pokemon.stats?.attack || 0}</div>
         <div>Защита: {pokemon.stats?.defense || 0}</div>
-        <div>Тип: {pokemon.type}</div>
+        <div>Тип: {pokemon.types.join(", ")}</div>
       </div>
     </div>
   );

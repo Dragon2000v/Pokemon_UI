@@ -18,7 +18,7 @@ export const PokemonCard: FC<Props> = ({
   onAttack,
   size = "large",
 }) => {
-  const hpPercentage = (pokemon.hp / maxHp) * 100;
+  const hpPercentage = (pokemon.stats.hp / maxHp) * 100;
   const hpColor =
     hpPercentage > 50
       ? "bg-green-500"
@@ -46,7 +46,7 @@ export const PokemonCard: FC<Props> = ({
           />
         </div>
         <div className="text-sm">
-          HP: {pokemon.hp} / {maxHp}
+          HP: {pokemon.stats.hp} / {maxHp}
         </div>
       </div>
 
@@ -60,10 +60,7 @@ export const PokemonCard: FC<Props> = ({
         onClick={onAttack}
       >
         <img
-          src={
-            pokemon.imageUrl ||
-            `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
-          }
+          src={pokemon.imageUrl}
           alt={pokemon.name}
           className={`
             w-full h-full object-contain drop-shadow-2xl
@@ -79,33 +76,21 @@ export const PokemonCard: FC<Props> = ({
 
       <div className="mt-2 space-y-1">
         <div className="text-center font-semibold text-sm">
-          Attack: {pokemon.attack}
+          Attack: {pokemon.stats.attack}
         </div>
         <div className="flex flex-wrap justify-center gap-2">
-          {Array.isArray(pokemon.type) ? (
-            pokemon.type.map((type, index) => (
-              <span
-                key={index}
-                className={`
-                  px-3 py-1 rounded-full text-xs font-bold
-                  shadow-md hover:shadow-lg transition-shadow duration-200
-                  ${getTypeColor(type)}
-                `}
-              >
-                {(type as string).toUpperCase()}
-              </span>
-            ))
-          ) : (
+          {pokemon.types.map((type, index) => (
             <span
+              key={index}
               className={`
                 px-3 py-1 rounded-full text-xs font-bold
                 shadow-md hover:shadow-lg transition-shadow duration-200
-                ${getTypeColor(pokemon.type)}
+                ${getTypeColor(type)}
               `}
             >
-              {(pokemon.type as string).toUpperCase()}
+              {type.toUpperCase()}
             </span>
-          )}
+          ))}
         </div>
       </div>
     </div>

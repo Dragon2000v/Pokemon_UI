@@ -3,7 +3,8 @@ export type PokemonType = "fire" | "water" | "grass" | "electric";
 export interface Move {
   name: string;
   power: number;
-  type: PokemonType;
+  type: string;
+  accuracy: number;
 }
 
 export interface Stats {
@@ -16,22 +17,19 @@ export interface Stats {
 export interface Pokemon {
   id: string;
   name: string;
-  type: PokemonType[];
+  types: string[];
   stats: Stats;
   moves: Move[];
-  imageUrl?: string;
-  hp: number; // Current HP
-  // Legacy fields for backward compatibility
-  attack?: number;
-  defense?: number;
-  speed?: number;
+  imageUrl: string;
+  level: number;
 }
 
 export interface PokemonFromServer {
   _id: string;
   name: string;
   stats: Stats;
-  type: PokemonType[];
+  types: string[];
   moves: Move[];
   imageUrl: string;
+  level: number;
 }

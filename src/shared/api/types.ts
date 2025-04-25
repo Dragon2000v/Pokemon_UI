@@ -1,21 +1,21 @@
 export interface Pokemon {
   id: string;
   name: string;
-  sprites: {
-    front_default: string;
-  };
+  types: string[];
   stats: {
     hp: number;
     attack: number;
     defense: number;
-    speed?: number;
+    speed: number;
   };
-  type: string;
   moves: Move[];
+  imageUrl: string;
+  level: number;
 }
 
 export interface Move {
   name: string;
   type: string;
   power: number;
+  accuracy: number;
 }

@@ -215,7 +215,10 @@ export const GamePage: FC = () => {
             <PokemonCard
               pokemon={{
                 ...gameState.playerPokemon,
-                hp: gameState.playerPokemonCurrentHP,
+                stats: {
+                  ...gameState.playerPokemon.stats,
+                  hp: gameState.playerPokemonCurrentHP,
+                },
               }}
               maxHp={playerMaxHp}
               isAttacking={isAttacking}
@@ -226,7 +229,10 @@ export const GamePage: FC = () => {
             <PokemonCard
               pokemon={{
                 ...gameState.computerPokemon,
-                hp: gameState.computerPokemonCurrentHP,
+                stats: {
+                  ...gameState.computerPokemon.stats,
+                  hp: gameState.computerPokemonCurrentHP,
+                },
               }}
               maxHp={computerMaxHp}
               isOpponent

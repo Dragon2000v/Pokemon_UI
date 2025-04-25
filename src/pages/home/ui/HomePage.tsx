@@ -53,11 +53,11 @@ export const HomePage: FC = () => {
             (pokemon: PokemonFromServer): Pokemon => ({
               id: pokemon._id,
               name: pokemon.name,
-              hp: pokemon.stats.hp,
-              type: pokemon.type,
+              types: pokemon.types,
               moves: pokemon.moves,
               imageUrl: pokemon.imageUrl,
               stats: pokemon.stats,
+              level: pokemon.level,
             })
           );
 
@@ -132,14 +132,14 @@ export const HomePage: FC = () => {
     }
   };
 
-  const getTypeColor = (type: PokemonType): string => {
-    const colors: Record<PokemonType, string> = {
+  const getTypeColor = (type: string): string => {
+    const colors: Record<string, string> = {
       fire: "bg-red-500/20 text-red-500",
       water: "bg-blue-500/20 text-blue-500",
       grass: "bg-green-500/20 text-green-500",
       electric: "bg-yellow-500/20 text-yellow-500",
     };
-    return colors[type];
+    return colors[type] || "bg-gray-500/20 text-gray-500";
   };
 
   if (loading) {
@@ -261,14 +261,14 @@ export const HomePage: FC = () => {
               >
                 {isCreatingGame ? "Создание игры..." : "Играть с ИИ"}
               </Button>
-              <Button
+              {/* <Button
                 onClick={() => handleCreateGame(false)}
                 className="w-48 text-lg"
                 disabled={!selectedPokemonId || isCreatingGame}
                 variant="secondary"
               >
                 {isCreatingGame ? "Создание игры..." : "Играть с игроками"}
-              </Button>
+              </Button> */}
             </div>
           </div>
         ) : (

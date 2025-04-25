@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Pokemon, Move } from "@/shared/api/types";
+import { Pokemon, Move } from "@/entities/pokemon/model/types";
 import { Button } from "@/shared/ui/button";
 
 interface Props {
@@ -34,7 +34,7 @@ export const PlayerPokemon: FC<Props> = ({
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-xl" />
           <img
-            src={pokemon.sprites?.front_default || defaultSprite}
+            src={pokemon.imageUrl || defaultSprite}
             alt={pokemon.name}
             className={`w-full h-48 object-contain ${
               isAttacking ? "animate-bounce" : ""
@@ -44,7 +44,7 @@ export const PlayerPokemon: FC<Props> = ({
         <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
           <div>Атака: {pokemon.stats?.attack || 0}</div>
           <div>Защита: {pokemon.stats?.defense || 0}</div>
-          <div>Тип: {pokemon.type}</div>
+          <div>Тип: {pokemon.types.join(", ")}</div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 p-4 bg-surface/30 backdrop-blur-sm rounded-2xl shadow-2xl">
