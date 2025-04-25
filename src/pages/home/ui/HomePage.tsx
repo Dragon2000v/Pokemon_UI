@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useWeb3 } from "@/entities/web3";
 import { createGame } from "@/features/game";
 import { getAllPokemons } from "@/features/pokemon/api/pokemon";
-import {
-  Pokemon,
-  PokemonFromServer,
-  PokemonType,
-} from "@/entities/pokemon/model/types";
+import { Pokemon, PokemonFromServer } from "@/entities/pokemon/model/types";
 import { Button } from "@/shared/ui/button";
 import { PokemonCard } from "@/entities/pokemon/ui/PokemonCard";
 import { AxiosError } from "axios";

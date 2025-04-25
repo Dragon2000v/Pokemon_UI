@@ -42,7 +42,7 @@ export const GamePage: FC = () => {
               : state.computerPokemon;
           const move = attacker.moves.find((m) => m.name === log.move);
           const moveType = move?.type || "";
-          const effectiveness = getTypeMultiplier(moveType, defender.type);
+          const effectiveness = getTypeMultiplier(moveType, defender.types);
           const attackModifier = attacker.stats.attack / 100;
           const defenseModifier = 1 - defender.stats.defense / 300;
 
@@ -161,7 +161,7 @@ export const GamePage: FC = () => {
     const defenseModifier = 1 - defender.stats.defense / 300;
 
     // Calculate type effectiveness
-    const typeMultiplier = getTypeMultiplier(move.type, defender.type);
+    const typeMultiplier = getTypeMultiplier(move.type, defender.types);
 
     // Final damage calculation with increased base multiplier
     const finalDamage =
