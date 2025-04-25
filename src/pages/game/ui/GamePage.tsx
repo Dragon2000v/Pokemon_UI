@@ -142,8 +142,8 @@ export const GamePage: FC = () => {
 
     // Если тип защищающегося покемона - массив, берем первый тип
     const defenderType = Array.isArray(defenderTypes)
-      ? defenderTypes[0]
-      : defenderTypes;
+      ? defenderTypes[0] || "normal"
+      : defenderTypes || "normal";
 
     return typeChart[moveType.toLowerCase()]?.[defenderType.toLowerCase()] || 1;
   };
