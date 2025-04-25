@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
   } else {
     console.warn("No token found in localStorage");
   }
-  // Добавляем timestamp для предотвращения кэширования
+  // Add timestamp to prevent caching
   if (config.method === "get") {
     config.params = {
       ...config.params,

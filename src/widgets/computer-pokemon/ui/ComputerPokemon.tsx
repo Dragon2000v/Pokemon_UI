@@ -33,9 +33,9 @@ export const ComputerPokemon: FC<Props> = ({ pokemon, isAttacking }) => {
         />
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-        <div>Атака: {pokemon.stats?.attack || 0}</div>
-        <div>Защита: {pokemon.stats?.defense || 0}</div>
-        <div>Тип: {pokemon.types.join(", ")}</div>
+        <div>Attack: {pokemon.stats?.attack || 0}</div>
+        <div>Defense: {pokemon.stats?.defense || 0}</div>
+        <div>Type: {pokemon.types.join(", ")}</div>
       </div>
     </div>
   );

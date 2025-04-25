@@ -42,13 +42,13 @@ export const PlayerPokemon: FC<Props> = ({
           />
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-          <div>Атака: {pokemon.stats?.attack || 0}</div>
-          <div>Защита: {pokemon.stats?.defense || 0}</div>
-          <div>Тип: {pokemon.types.join(", ")}</div>
+          <div>Attack: {pokemon.stats?.attack || 0}</div>
+          <div>Defense: {pokemon.stats?.defense || 0}</div>
+          <div>Type: {pokemon.types.join(", ")}</div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 p-4 bg-surface/30 backdrop-blur-sm rounded-2xl shadow-2xl">
-        <div className="col-span-2 mb-2 text-center font-semibold">Атаки</div>
+        <div className="col-span-2 mb-2 text-center font-semibold">Attacks</div>
         {(pokemon.moves || []).map((move: Move, index: number) => (
           <Button
             key={index}

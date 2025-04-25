@@ -42,9 +42,9 @@ export const HomePage: FC = () => {
           return;
         }
 
-        // Проверяем что данные действительно являются массивом
+        // Check if data is actually an array
         if (Array.isArray(data)) {
-          // Преобразуем данные в нужный формат
+          // Transform data into the required format
           const transformedPokemons = data.map(
             (pokemon: PokemonFromServer): Pokemon => ({
               id: pokemon._id,
@@ -97,7 +97,7 @@ export const HomePage: FC = () => {
     }
 
     if (!selectedPokemonId) {
-      alert("Пожалуйста, выберите покемона");
+      alert("Please select a Pokemon");
       return;
     }
 
@@ -113,16 +113,16 @@ export const HomePage: FC = () => {
       console.log("Game created with ID:", gameId);
 
       if (!gameId) {
-        throw new Error("Не удалось получить ID игры");
+        throw new Error("Failed to get game ID");
       }
 
-      // Добавляем небольшую задержку перед переходом
+      // Add a small delay before navigation
       await new Promise((resolve) => setTimeout(resolve, 500));
       navigate(`/game/${gameId}`);
     } catch (error) {
       console.error("Error creating game:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Неизвестная ошибка";
+        error instanceof Error ? error.message : "Unknown error";
       alert(errorMessage);
       setIsCreatingGame(false);
     }
@@ -161,8 +161,8 @@ export const HomePage: FC = () => {
           </h1>
           {!signer && (
             <p className="text-xl mb-8 text-text/80">
-              Подключи свой кошелек и начни сражение с покемонами! Выбери режим
-              игры: против ИИ или против других игроков.
+              Connect your wallet and start battling with Pokemon! Choose a game
+              mode: against AI or against other players.
             </p>
           )}
         </div>
@@ -170,7 +170,7 @@ export const HomePage: FC = () => {
         {signer ? (
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-center">
-              Выберите своего покемона
+              Choose your Pokemon
             </h2>
 
             {/* Selected Pokemon Details */}
@@ -192,17 +192,17 @@ export const HomePage: FC = () => {
                       <div className="flex-1 space-y-4">
                         <div>
                           <h3 className="text-xl font-bold mb-2">
-                            Характеристики
+                            Characteristics
                           </h3>
                           <div className="grid grid-cols-2 gap-2">
-                            <div>Атака: {pokemon.stats.attack}</div>
-                            <div>Защита: {pokemon.stats.defense}</div>
-                            <div>Скорость: {pokemon.stats.speed}</div>
+                            <div>Attack: {pokemon.stats.attack}</div>
+                            <div>Defense: {pokemon.stats.defense}</div>
+                            <div>Speed: {pokemon.stats.speed}</div>
                             <div>HP: {pokemon.stats.hp}</div>
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold mb-2">Атаки</h3>
+                          <h3 className="text-xl font-bold mb-2">Attacks</h3>
                           <div className="grid grid-cols-2 gap-2">
                             {pokemon.moves.map((move, index) => (
                               <div
@@ -214,7 +214,7 @@ export const HomePage: FC = () => {
                               >
                                 <div className="font-semibold">{move.name}</div>
                                 <div className="text-sm opacity-80">
-                                  Сила: {move.power}
+                                  Power: {move.power}
                                 </div>
                               </div>
                             ))}
@@ -255,22 +255,21 @@ export const HomePage: FC = () => {
                 className="w-48 text-lg"
                 disabled={!selectedPokemonId || isCreatingGame}
               >
-                {isCreatingGame ? "Создание игры..." : "Играть с ИИ"}
+                {isCreatingGame ? "Creating game..." : "Play with players"}
               </Button>
               {/* <Button
                 onClick={() => handleCreateGame(false)}
-                className="w-48 text-lg"
+                className="w-full"
                 disabled={!selectedPokemonId || isCreatingGame}
-                variant="secondary"
               >
-                {isCreatingGame ? "Создание игры..." : "Играть с игроками"}
+                {isCreatingGame ? "Creating game..." : "Play with players"}
               </Button> */}
             </div>
           </div>
         ) : (
           <div className="text-center">
             <Button onClick={connect} className="text-lg">
-              Подключить кошелек
+              Connect Wallet
             </Button>
           </div>
         )}

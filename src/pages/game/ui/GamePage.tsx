@@ -51,27 +51,27 @@ export const GamePage: FC = () => {
 
           if (log.damage > 1) {
             if (effectiveness > 1) {
-              effectivenessText = "(Супер эффективно!)";
+              effectivenessText = "(Super effective!)";
             } else if (effectiveness < 1) {
-              effectivenessText = "(Не очень эффективно...)";
+              effectivenessText = "(Not very effective...)";
             }
 
-            damageCalculation = `Базовый урон ${
+            damageCalculation = `Base damage ${
               move?.power || 0
-            } × Атака (${Math.round(
+            } × Attack (${Math.round(
               attackModifier * 100
-            )}%) × Защита (${Math.round(
+            )}%) × Defense (${Math.round(
               (1 - defenseModifier) * 100
-            )}%) × Тип (${effectiveness}x) × 1.5 = ${log.damage}`;
+            )}%) × Type (${effectiveness}x) × 1.5 = ${log.damage}`;
           } else {
-            damageCalculation = "Атака оказалась слишком слабой...";
+            damageCalculation = "Attack was too weak...";
           }
 
-          return `${log.attacker === "player" ? "ХОД ИГРОКА" : "ХОД ИИ"}\n${
-            attacker.name
-          } использует ${log.move}! ${effectivenessText} Наносит ${
+          return `${log.attacker === "player" ? "PLAYER TURN" : "AI TURN"}\n${
+            log.attacker === "player" ? "Your" : "Enemy"
+          } ${attacker.name} uses ${log.move}! ${effectivenessText} Deals ${
             log.damage
-          } урона! ${damageCalculation}`;
+          } damage! ${damageCalculation}`;
         });
         setBattleLogs(newLogs);
       }
@@ -140,7 +140,7 @@ export const GamePage: FC = () => {
       electric: { fire: 1, water: 2, grass: 0.5, electric: 0.5 },
     };
 
-    // Если тип защищающегося покемона - массив, берем первый тип
+    // If defender's type is an array, take the first type
     const defenderType = Array.isArray(defenderTypes)
       ? defenderTypes[0] || "normal"
       : defenderTypes || "normal";
@@ -165,7 +165,7 @@ export const GamePage: FC = () => {
 
     // Final damage calculation with increased base multiplier
     const finalDamage =
-      baseDamage * attackModifier * defenseModifier * typeMultiplier * 1.5; // Увеличили базовый множитель
+      baseDamage * attackModifier * defenseModifier * typeMultiplier * 1.5; // Increased base multiplier
 
     // Ensure minimum damage of 1
     return Math.max(1, Math.floor(finalDamage));
@@ -263,7 +263,7 @@ export const GamePage: FC = () => {
                 className="flex flex-col items-center"
               >
                 <span>{move.name}</span>
-                <span className="text-xs opacity-80">Урон: {damage}</span>
+                <span className="text-xs opacity-80">Damage: {damage}</span>
               </Button>
             );
           })}

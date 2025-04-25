@@ -17,7 +17,7 @@ export const Header: FC = () => {
             Pokemon Battle
           </Link>
           <Button onClick={connect} variant="outline" size="sm">
-            {signer ? "Кошелек подключен" : "Подключить кошелек"}
+            {signer ? "Wallet Connected" : "Connect Wallet"}
           </Button>
         </div>
       </div>

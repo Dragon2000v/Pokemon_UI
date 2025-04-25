@@ -23,14 +23,14 @@ export const handlePlayerMove = (
   );
   if (!playerMove) return;
 
-  // Рассчитываем урон игрока
+  // Calculate player damage
   const playerDamage = calculateDamage(
     playerMove,
     gameState.playerPokemon,
     gameState.computerPokemon
   );
 
-  // Обновляем HP компьютера
+  // Update computer HP
   const updatedComputerPokemon = {
     ...gameState.computerPokemon,
     stats: {
@@ -39,7 +39,7 @@ export const handlePlayerMove = (
     },
   };
 
-  // Проверяем победу игрока
+  // Check for player victory
   if (updatedComputerPokemon.stats.hp <= 0) {
     onStateChange({
       ...gameState,
@@ -47,11 +47,11 @@ export const handlePlayerMove = (
       status: "finished",
       winner: "player",
     });
-    onLogAdd(`${gameState.playerPokemon.name} побеждает в битве!`);
+    onLogAdd(`${gameState.playerPokemon.name} wins the battle!`);
     return;
   }
 
-  // Ход компьютера
+  // Computer turn
   const computerMove = getRandomMove(gameState.computerPokemon.moves);
   const computerDamage = calculateDamage(
     computerMove,
@@ -59,7 +59,7 @@ export const handlePlayerMove = (
     gameState.playerPokemon
   );
 
-  // Обновляем HP игрока
+  // Update player HP
   const updatedPlayerPokemon = {
     ...gameState.playerPokemon,
     stats: {
@@ -68,7 +68,7 @@ export const handlePlayerMove = (
     },
   };
 
-  // Проверяем победу компьютера
+  // Check for computer victory
   if (updatedPlayerPokemon.stats.hp <= 0) {
     onStateChange({
       ...gameState,
@@ -77,11 +77,11 @@ export const handlePlayerMove = (
       status: "finished",
       winner: "computer",
     });
-    onLogAdd(`${gameState.computerPokemon.name} побеждает в битве!`);
+    onLogAdd(`${gameState.computerPokemon.name} wins the battle!`);
     return;
   }
 
-  // Обновляем состояние игры
+  // Update game state
   onStateChange({
     ...gameState,
     playerPokemon: updatedPlayerPokemon,
@@ -89,12 +89,12 @@ export const handlePlayerMove = (
     currentTurn: "player",
   });
 
-  // Добавляем логи
+  // Add logs
   onLogAdd(
-    `${gameState.playerPokemon.name} использует ${moveName} и наносит ${playerDamage} урона!`
+    `${gameState.playerPokemon.name} uses ${moveName} and deals ${playerDamage} damage!`
   );
   onLogAdd(
-    `${gameState.computerPokemon.name} использует ${computerMove.name} и наносит ${computerDamage} урона!`
+    `${gameState.computerPokemon.name} uses ${computerMove.name} and deals ${computerDamage} damage!`
   );
 };
 
@@ -106,7 +106,7 @@ const calculateDamage = (
   const baseDamage = move.power || 0;
   const attackModifier = (attacker.stats.attack || 0) / 100;
   const defenseModifier = 1 - (defender.stats.defense || 0) / 300;
-  const typeMultiplier = getTypeMultiplier(move.type, defender.type);
+  const typeMultiplier = getTypeMultiplier(move.type, defender.types[0]);
 
   return Math.max(
     1,
@@ -117,7 +117,7 @@ const calculateDamage = (
 };
 
 const getTypeMultiplier = (moveType: string, defenderType: string): number => {
-  // Здесь можно добавить логику эффективности типов
+  // Here you can add type effectiveness logic
   return 1;
 };
 

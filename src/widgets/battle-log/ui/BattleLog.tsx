@@ -16,7 +16,7 @@ export const BattleLog: FC<Props> = ({ logs }) => {
   return (
     <div className="w-full max-w-4xl">
       <h3 className="text-2xl font-bold mb-4 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-        Боевой журнал
+        Battle Log
       </h3>
       <div className="relative h-[400px]">
         <div
@@ -31,20 +31,18 @@ export const BattleLog: FC<Props> = ({ logs }) => {
                 className="w-16 h-16 animate-bounce"
               />
               <div className="text-center text-lg text-text/50 italic">
-                Битва еще не началась...
+                Battle hasn't started yet...
               </div>
             </div>
           ) : (
             logs.map((log, index) => {
-              const isPlayerAction = log.startsWith("ХОД ИГРОКА");
-              const isDamage = log.toLowerCase().includes("наносит");
-              const isSurrender = log.toLowerCase().includes("сдался");
-              const isEffective = log
-                .toLowerCase()
-                .includes("супер эффективно");
+              const isPlayerAction = log.startsWith("PLAYER TURN");
+              const isDamage = log.toLowerCase().includes("on the attack");
+              const isSurrender = log.toLowerCase().includes("surrendered");
+              const isEffective = log.toLowerCase().includes("super effective");
               const isNotEffective = log
                 .toLowerCase()
-                .includes("не очень эффективно");
+                .includes("not very effective");
 
               return (
                 <div
@@ -70,11 +68,11 @@ export const BattleLog: FC<Props> = ({ logs }) => {
                   <div className="flex items-center gap-2">
                     {isPlayerAction ? (
                       <span className="text-primary text-sm uppercase font-bold tracking-wider">
-                        ХОД ИГРОКА
+                        PLAYER TURN
                       </span>
                     ) : (
                       <span className="text-secondary text-sm uppercase font-bold tracking-wider">
-                        ХОД ИИ
+                        AI TURN
                       </span>
                     )}
                   </div>
@@ -83,20 +81,20 @@ export const BattleLog: FC<Props> = ({ logs }) => {
                       .split("\n")[1]
                       .split("!")
                       .map((part, i) => {
-                        const isEffectiveness = part.includes("эффективно");
-                        const isDamageText = part.includes("Наносит");
-                        const isCalculation = part.includes("Базовый урон");
+                        const isEffectiveness = part.includes("effective");
+                        const isDamageText = part.includes("On the attack");
+                        const isCalculation = part.includes("Base damage");
                         return (
                           <span
                             key={i}
                             className={`
                             ${
-                              isEffectiveness && part.includes("Супер")
+                              isEffectiveness && part.includes("Super")
                                 ? "text-green-500 font-semibold"
                                 : ""
                             }
                             ${
-                              isEffectiveness && part.includes("Не очень")
+                              isEffectiveness && part.includes("Not very")
                                 ? "text-yellow-500 font-semibold"
                                 : ""
                             }
