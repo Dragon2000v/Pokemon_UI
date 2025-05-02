@@ -1,2 +1,2 @@
-export type { GameState } from "./model/types.ts";
-export { createGame } from "./api/gameSocket.ts";
+export type { GameState } from "./model/types";
+export { createGame } from "./api/gameSocket";

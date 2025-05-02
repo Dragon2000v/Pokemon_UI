@@ -1,4 +1,4 @@
-import type { Pokemon } from "../../../entities/pokemon/model/types.ts";
+import type { Pokemon } from "../../../entities/pokemon/model/types";
 
 export interface BattleLogEntry {
   turn: number;

@@ -17,7 +17,29 @@ class SocketClient {
 
   connect() {
     if (!this.socket) {
-      this.socket = io(API_URL);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Authentication token is required");
+      }
+
+      this.socket = io(API_URL, {
+        auth: {
+          token,
+        },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
+
+      this.socket.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        if (error.message.includes("Authentication")) {
+          // Если ошибка аутентификации, удаляем токен
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
+      });
     }
     return this.socket;
   }

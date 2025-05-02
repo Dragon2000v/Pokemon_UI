@@ -7,6 +7,7 @@ import { Pokemon, PokemonFromServer } from "@/entities/pokemon/model/types";
 import { Button } from "@/shared/ui/button";
 import { PokemonCard } from "@/entities/pokemon/ui/PokemonCard";
 import { AxiosError } from "axios";
+import { socketClient } from "@/shared/lib/socket";
 
 export const HomePage: FC = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const HomePage: FC = () => {
   );
   const [loading, setLoading] = useState(false);
   const [isCreatingGame, setIsCreatingGame] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPokemons = async () => {
@@ -97,18 +99,22 @@ export const HomePage: FC = () => {
     }
 
     if (!selectedPokemonId) {
-      alert("Please select a Pokemon");
+      setError("Please select a Pokemon");
       return;
     }
 
     try {
       setIsCreatingGame(true);
+      setError(null);
+
       console.log(
         "Creating game with pokemon:",
         selectedPokemonId,
         "AI mode:",
         isAI
       );
+
+      // Пробуем создать игру
       const gameId = await createGame(selectedPokemonId, isAI);
       console.log("Game created with ID:", gameId);
 
@@ -116,14 +122,40 @@ export const HomePage: FC = () => {
         throw new Error("Failed to get game ID");
       }
 
-      // Add a small delay before navigation
+      // Добавляем задержку перед навигацией
       await new Promise((resolve) => setTimeout(resolve, 500));
       navigate(`/game/${gameId}`);
     } catch (error) {
       console.error("Error creating game:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      alert(errorMessage);
+
+      // Показываем ошибку пользователю
+      setError(errorMessage);
+
+      // Если ошибка связана с сокетом, пробуем переподключиться
+      if (errorMessage.includes("Socket not connected")) {
+        try {
+          console.log("Trying to reconnect socket...");
+          socketClient.disconnect();
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const newSocket = socketClient.connect();
+
+          // Добавляем обработчики для нового подключения
+          newSocket.on("connect", () => {
+            console.log("Socket reconnected successfully");
+          });
+
+          newSocket.on("connect_error", (error) => {
+            console.error("Socket reconnection failed:", error);
+            setError("Failed to reconnect to game server");
+          });
+        } catch (reconnectError) {
+          console.error("Failed to reconnect:", reconnectError);
+          setError("Failed to reconnect to game server");
+        }
+      }
+    } finally {
       setIsCreatingGame(false);
     }
   };
@@ -155,6 +187,13 @@ export const HomePage: FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-6xl mx-auto">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 text-center">
             Pokemon Battle
@@ -255,15 +294,15 @@ export const HomePage: FC = () => {
                 className="w-48 text-lg"
                 disabled={!selectedPokemonId || isCreatingGame}
               >
-                {isCreatingGame ? "Creating game..." : "Play with players"}
+                {isCreatingGame ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Creating game...
+                  </div>
+                ) : (
+                  "Play with AI"
+                )}
               </Button>
-              {/* <Button
-                onClick={() => handleCreateGame(false)}
-                className="w-full"
-                disabled={!selectedPokemonId || isCreatingGame}
-              >
-                {isCreatingGame ? "Creating game..." : "Play with players"}
-              </Button> */}
             </div>
           </div>
         ) : (
